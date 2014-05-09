@@ -105,7 +105,7 @@ class Client extends http.BaseClient {
     .then((_) => getRandomBytes(8))
     .then((nonce) {
       String nonceStr = crypto.CryptoUtils.bytesToBase64(nonce, urlSafe: true);
-      signRequest(request, _consumerToken, _userToken, nonceStr,
+      signRequest(request, consumerToken, userToken, nonceStr,
                   new DateTime.now().millisecondsSinceEpoch ~/ 1000);
       return _client.send(request);
     });
