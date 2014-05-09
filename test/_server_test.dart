@@ -1,7 +1,8 @@
+library oauth.test.common;
+
 import 'dart:io';
 import 'dart:async';
 import 'package:oauth/oauth.dart' as oauth;
-import 'package:http/http.dart' as http;
 import 'package:unittest/unittest.dart';
 
 simpleNonceQuery(String consumerToken, String userToken, 
@@ -15,24 +16,7 @@ simpleTokenFinder(String consumer, String user) {
       new oauth.Token(user, user.toUpperCase())));
 }
 
-main() {
-  HttpServer server;
-  String authority;
-
-  setUp(() {
-    return HttpServer.bind(InternetAddress.LOOPBACK_IP_V6, 0).then((server_) {
-      server = server_;
-      authority = "localhost:" + server.port.toString();
-      server.listen((HttpRequest request) {
-        oauth.isAuthorized(request, simpleTokenFinder, simpleNonceQuery)
-            .then((bool authorized) {
-          request.response.statusCode = authorized ? HttpStatus.OK : HttpStatus.FORBIDDEN;
-          return request.response.close();
-        });
-      });
-    });
-  });
-
+runAllTests(String authority) {
   standardTests(oauth.Client goodClient) => () {
     test("Simple GET", () {
       var done = expectAsync((_) {});    

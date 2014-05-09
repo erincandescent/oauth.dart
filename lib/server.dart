@@ -61,6 +61,19 @@ typedef Future<TokenPair> TokenFinder(String consumerKey, String userKey);
 typedef Future<bool> NonceQuery(String consumerToken, String userToken, 
     String nonce, DateTime expiry);
 
+abstract class RequestAdapter {
+  String get method;
+  
+  String getHeader(String named);
+  
+  String   get mimeType;
+  Encoding get encoding;
+  
+  Uri get requestedUri;
+  
+  Stream<List<int>> get body;
+}
+
 /** Validates that the request contains a valid OAuth signature.
  * 
  * The request parameters will be validated, and then [tokenFinder] will be
@@ -75,7 +88,7 @@ typedef Future<bool> NonceQuery(String consumerToken, String userToken,
  * 
  * Returns whether the request should be permitted.
  */
-Future<bool> isAuthorized(HttpRequest request, 
+Future<bool> isAuthorized(RequestAdapter request, 
                           TokenFinder tokenFinder,
                           NonceQuery  nonceQuery,
                           {Duration timestampLeeway}) {  
@@ -88,12 +101,9 @@ Future<bool> isAuthorized(HttpRequest request,
       timestampLeeway : new Duration(minutes: 10);
   
   return async.then((_) {
-    List<String> authHeaders = request.headers['Authorization'];
-    _require(authHeaders != null && authHeaders.length != 0);
-    
-    String authHeader = authHeaders.fold(null, 
-        (l, r) => r.startsWith("OAuth ") ? r : l);
+    String authHeader = request.getHeader('Authorization');
     _require(authHeader != null);
+    _require(authHeader.startsWith("OAuth "));
     
     authHeader = authHeader.substring(5);
     
@@ -142,16 +152,14 @@ Future<bool> isAuthorized(HttpRequest request,
     tokens = tokens_;
     
     List<Parameter> reqParams = new List<Parameter>.from(mapParameters(params));
-    reqParams.addAll(mapParameters(request.uri.queryParameters));
+    reqParams.addAll(mapParameters(request.requestedUri.queryParameters));
     
-    var contentType = request.headers.contentType;
-    if(contentType != null 
-        && contentType.mimeType == "application/x-www-form-urlencoded") {
-      String encoding = contentType.parameters["charset"];
-      if(encoding == null) encoding = "UTF-8";
-      var codec = Encoding.getByName(encoding);
-      return codec.decodeStream(request.asBroadcastStream()).then((String data) {
-        reqParams.addAll(mapParameters(Uri.splitQueryString(data, encoding: codec)));
+    String mimeType = request.mimeType;
+    if(mimeType != null && mimeType == "application/x-www-form-urlencoded") {
+      Encoding encoding = request.encoding;
+      if(encoding == null) encoding = UTF8;
+      return encoding.decodeStream(request.body).then((String data) {
+        reqParams.addAll(mapParameters(Uri.splitQueryString(data, encoding: encoding)));
         return reqParams;
       });
     } else {
