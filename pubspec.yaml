@@ -3,7 +3,6 @@ version: 0.2.1
 author: Owen Shepherd <*@owenshepherd.net>
 description: An implementation of OAuth 1.0a per RFC 5849
 homepage: https://github.com/oshepherd/oauth.dart
-documentation: http://oshepherd.github.io/oauth.dart
 dependencies:
   crypto: '>=0.9.0 <0.10.0'
   http: '>=0.10.0 <0.12.0'
