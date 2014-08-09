@@ -97,9 +97,9 @@ class Client extends http.BaseClient {
    * `application/x-www-form-urlencoded`, then the request cannot be 
    *  streaming as the body parameters are required as part of the signature.
    */
-  Client(this.consumerToken, {http.BaseClient client, Token userToken})
-      : _client    = client != null ? client : new http.Client();
-  
+  Client(this.consumerToken, {http.BaseClient client, Token this.userToken}):
+    _client = client != null ? client : new http.Client();
+    
   @override
   Future<http.StreamedResponse> send(http.BaseRequest request) => async
     .then((_) => getRandomBytes(8))
