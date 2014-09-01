@@ -6,6 +6,8 @@ homepage: https://github.com/oshepherd/oauth.dart
 dependencies:
   crypto: '>=0.9.0 <0.10.0'
   http: '>=0.10.0 <0.12.0'
+  cipher: any
+  asn1lib: any
 dev_dependencies:
   shelf: any
   unittest: '>=0.10.0 <0.11.0'
