@@ -131,22 +131,3 @@ List<int> computeSignatureBase(String method, Uri url, List<Parameter> params) {
   
   return sigBase;
 }
-
-
-
-//String computeSignature(List<int> key, List<int> signatureBase, String signature_method) {
-//  List<int> bytes = null;
-//  switch (signature_method){
-//    case "HMAC-SHA1":
-//     var mac = new crypto.HMAC(new crypto.SHA1(), key);
-//     mac.add(signatureBase);
-//     bytes = mac.close();
-//     break;
-//    case "RSA-SHA1":
-//      var signer = new cipher.Signer("SHA-1/RSA");
-//      //signer.generateSignature(message)
-//      break;
-//  }
-//    return crypto.CryptoUtils.bytesToBase64(bytes);
-//}
-

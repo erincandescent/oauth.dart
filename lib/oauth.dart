@@ -10,8 +10,8 @@ export 'package:oauth/client.dart' show
   signRequest,
   Token,
   Signer,
-  SignerRSA,
-  SignerHMAC;
+  RsaSigner,
+  HmacSigner;
 
 export 'package:oauth/server.dart' show 
   isAuthorized, 
