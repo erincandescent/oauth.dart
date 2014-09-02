@@ -10,7 +10,7 @@ RandomAccessFile _randomFile;
 bool _haveWarned = false;
 
 Future<List<int>> getRandomBytes(int count) {
- /* if(!Platform.isWindows) {
+  if(!Platform.isWindows) {
     if(_randomFile == null) {
       _randomFile = new File("/dev/urandom").openSync();
     }
@@ -24,10 +24,9 @@ Future<List<int>> getRandomBytes(int count) {
           "You should therefore not use the OAuth library in 'production' environments " +
           "on a Windows machine!");
     }
-      */
     return async.then((_) {
       var r = new Random();
       return new List<int>.generate(count, (_) => r.nextInt(255), growable: false);
     });
-  /*}*/
+  }
 }
