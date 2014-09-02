@@ -1,7 +1,6 @@
 /** Server support for OAuth 1.0a with the dart:io [HttpServer] */
 library oauth.server;
 import 'dart:async';
-import 'dart:io';
 import 'dart:convert';
 import 'package:oauth/src/token.dart';
 import 'package:oauth/src/core.dart';

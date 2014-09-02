@@ -2,6 +2,7 @@ library oauth.core;
 import 'dart:convert';
 import 'package:oauth/src/token.dart';
 import 'package:crypto/crypto.dart' as crypto;
+import "package:cipher/cipher.dart" as cipher;
 
 const int $0    = 0x30;
 const int $9    = 0x39;
@@ -130,19 +131,3 @@ List<int> computeSignatureBase(String method, Uri url, List<Parameter> params) {
   
   return sigBase;
 }
-
-List<int> computeKey(Token consumer, Token user) {
-  List<int> res = new List<int>();
-  res.addAll(oauthEncode(consumer.secret));
-  res.add($amp);
-  if(user != null)
-    res.addAll(oauthEncode(user.secret));
-  return res;
-}
-
-String computeSignature(List<int> key, List<int> signatureBase) {
-  var mac = new crypto.HMAC(new crypto.SHA1(), key);
-  mac.add(signatureBase);
-  return crypto.CryptoUtils.bytesToBase64(mac.close());
-}
-
