@@ -1,5 +1,5 @@
 name: oauth
-version: 0.2.1
+version: 0.2.1+1
 author: Owen Shepherd <*@owenshepherd.net>
 description: An implementation of OAuth 1.0a per RFC 5849
 homepage: https://github.com/oshepherd/oauth.dart
