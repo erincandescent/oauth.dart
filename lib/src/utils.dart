@@ -15,7 +15,7 @@ Future<List<int>> getRandomBytes(int count) {
       _randomFile = new File("/dev/urandom").openSync();
     }
     
-    return _randomFile.read(count);
+    return new Future.value(_randomFile.readSync(count));
   } else {
     if(!_haveWarned) {
       _haveWarned = true;
