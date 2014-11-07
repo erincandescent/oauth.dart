@@ -8,24 +8,23 @@ import 'package:oauth/src/core.dart';
 import 'package:oauth/src/token.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypto/crypto.dart' as crypto;
-export 'package:oauth/src/token.dart' show Token;
+export 'package:oauth/src/token.dart' show Tokens;
 
 /** Generate the parameters to be included in the `Authorization:` header of a
  *  request. Generally you should prefer use of [signRequest] or [Client] 
  */
 Map<String, String> generateParameters(
-    http.BaseRequest request, 
-    Token consumerToken, 
-    Token userToken, 
+    http.BaseRequest request,
+    Tokens tokens, 
     String nonce,
     int timestamp) {
   Map<String, String> params = new Map<String, String>();
-  params["oauth_consumer_key"] = consumerToken.key;
-  if(userToken != null) {
-    params["oauth_token"] = userToken.key;
+  params["oauth_consumer_key"] = tokens.consumerId;
+  if(tokens.userId != null) {
+    params["oauth_token"] = tokens.userId;
   }
   
-  params["oauth_signature_method"] = "HMAC-SHA1";
+  params["oauth_signature_method"] = tokens.type;
   params["oauth_version"] = "1.0";
   params["oauth_nonce"] = nonce;
   params["oauth_timestamp"] = timestamp.toString();
@@ -40,8 +39,7 @@ Map<String, String> generateParameters(
   } 
   
   var sigBase = computeSignatureBase(request.method, request.url, requestParams);
-  var sigKey = computeKey(consumerToken, userToken);
-  params["oauth_signature"] = computeSignature(sigKey, sigBase);
+  params["oauth_signature"] = crypto.CryptoUtils.bytesToBase64(tokens.sign(sigBase));
   
   return params;
 }
@@ -63,13 +61,11 @@ String produceAuthorizationHeader(Map<String, String> parameters) {
  *  seconds since 1970-01-01T00:00Z)
  */
 void signRequest(http.BaseRequest request,
-                 Token consumerToken,
-                 Token userToken,
+                 Tokens tokens,
                  String nonce,
                  int timestamp) {
   
-  var params = generateParameters(request, consumerToken, userToken,
-      nonce, timestamp);
+  var params = generateParameters(request, tokens, nonce, timestamp);
   
   request.headers["Authorization"] = produceAuthorizationHeader(params);
 }
@@ -79,11 +75,8 @@ void signRequest(http.BaseRequest request,
  * 
  */
 class Client extends http.BaseClient {
-  /// The OAuth consumer/client token. Required.
-  Token consumerToken;
-  
-  /// The OAuth user/authorization token. Optional.
-  Token userToken;
+  /// The OAuth tokens. Required.
+  Tokens tokens;
   http.BaseClient _client;
   
   /// The wrapped client
@@ -97,16 +90,15 @@ class Client extends http.BaseClient {
    * `application/x-www-form-urlencoded`, then the request cannot be 
    *  streaming as the body parameters are required as part of the signature.
    */
-  Client(this.consumerToken, {http.BaseClient client, Token this.userToken}):
+  Client(this.tokens, {http.BaseClient client}):
     _client = client != null ? client : new http.Client();
     
   @override
-  Future<http.StreamedResponse> send(http.BaseRequest request) => async
-    .then((_) => getRandomBytes(8))
-    .then((nonce) {
+  Future<http.StreamedResponse> send(http.BaseRequest request) {
+      var nonce = getRandomBytes(8);
       String nonceStr = crypto.CryptoUtils.bytesToBase64(nonce, urlSafe: true);
-      signRequest(request, consumerToken, userToken, nonceStr,
+      signRequest(request, tokens, nonceStr,
                   new DateTime.now().millisecondsSinceEpoch ~/ 1000);
       return _client.send(request);
-    });
+    }
 }

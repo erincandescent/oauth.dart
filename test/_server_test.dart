@@ -10,10 +10,19 @@ simpleNonceQuery(String consumerToken, String userToken,
   return new Future.value(true); 
 }
 
-simpleTokenFinder(String consumer, String user) {
-  return new Future.value(new oauth.TokenPair(
-      new oauth.Token(consumer, consumer.toUpperCase()), 
-      new oauth.Token(user, user.toUpperCase())));
+simpleTokenFinder(String type, String consumer, String user) {
+  assert(type == "HMAC-SHA1");
+  
+  var consumerSecret = consumer.toUpperCase();
+  var userSecret = null;
+  if(user != null)
+    userSecret = user.toUpperCase();
+  
+  return new oauth.Tokens(
+      consumerId: consumer,
+      consumerKey: consumerSecret,
+      userId: user,
+      userKey: userSecret);
 }
 
 runAllTests(String authority) {
@@ -29,7 +38,10 @@ runAllTests(String authority) {
     test("Simple POST", () {
       var done = expectAsync((_) {});
       
-      goodClient.post(new Uri.http(authority, "/test/path"), body: "Hello, World!").then((response) {
+      goodClient.post(new Uri.http(authority, "/test/path"), body: "Hello, World!").catchError((err) {
+        print("Error ${err}");
+        throw err;
+      }).then((response) {
         expect(response.statusCode, HttpStatus.OK);      
       }).then(done);
     });
@@ -46,15 +58,15 @@ runAllTests(String authority) {
   };
   
   group("Consumer credentials only",
-      standardTests(new oauth.Client(new oauth.Token("Hello", "HELLO"))));
+      standardTests(new oauth.Client(new oauth.Tokens(consumerId: "Hello", consumerKey: "HELLO"))));
   
   group("With user credentials",
-      standardTests(new oauth.Client(new oauth.Token("Hello", "HELLO"), userToken: new oauth.Token("World", "WORLD"))));
+      standardTests(new oauth.Client(new oauth.Tokens(consumerId: "Hello", consumerKey: "HELLO", userId: "World", userKey: "WORLD"))));
   
   test("Bad GET", () {
     var done = expectAsync((_) {});
     
-    var client = new oauth.Client(new oauth.Token("bad", "very very bad"));
+    var client = new oauth.Client(new oauth.Tokens(consumerId: "bad", consumerKey: "very very bad"));
     client.get(new Uri.http(authority,  "/")).then((response) {
       expect(response.statusCode, HttpStatus.FORBIDDEN);
     }).then(done);

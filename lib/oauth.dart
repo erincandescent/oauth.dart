@@ -8,10 +8,9 @@ export 'package:oauth/client.dart' show
   generateParameters,
   produceAuthorizationHeader,
   signRequest,
-  Token;
+  Tokens;
 
 export 'package:oauth/server.dart' show 
-  isAuthorized, 
-  TokenPair, 
+  isAuthorized,  
   TokenFinder, 
   NonceQuery;

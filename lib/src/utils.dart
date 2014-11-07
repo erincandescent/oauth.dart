@@ -9,13 +9,13 @@ Future get async => new Future.delayed(const Duration(milliseconds: 0),
 RandomAccessFile _randomFile;
 bool _haveWarned = false;
 
-Future<List<int>> getRandomBytes(int count) {
+List<int> getRandomBytes(int count) {
   if(!Platform.isWindows) {
     if(_randomFile == null) {
       _randomFile = new File("/dev/urandom").openSync();
     }
     
-    return _randomFile.read(count);
+    return _randomFile.readSync(count);
   } else {
     if(!_haveWarned) {
       _haveWarned = true;
@@ -25,9 +25,7 @@ Future<List<int>> getRandomBytes(int count) {
           "on a Windows machine!");
     }
       
-    return async.then((_) {
-      var r = new Random();
-      return new List<int>.generate(count, (_) => r.nextInt(255), growable: false);
-    });
+    var r = new Random();
+    return new List<int>.generate(count, (_) => r.nextInt(255), growable: false);
   }
 }

@@ -1,44 +1,32 @@
 /** Server support for OAuth 1.0a with the dart:io [HttpServer] */
 library oauth.server;
 import 'dart:async';
-import 'dart:io';
 import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:oauth/src/token.dart';
 import 'package:oauth/src/core.dart';
 import 'package:oauth/src/utils.dart';
-export 'package:oauth/src/token.dart' show Token;
+export 'package:oauth/src/token.dart' show Tokens;
 
 final _paramRegex = new RegExp(r'^\s*(\w+)\s*=\s*"([^"]*)"\s*$');
 class _NotAuthorized implements Exception {}
 void _require(bool test) { if(!test) throw new _NotAuthorized(); }
 
-/** A pair of OAuth tokens
- *  
- *  Groups together a pair of token credentials to be returned by a 
- *  [TokenFinder]
- */
-class TokenPair {
-  /// The consumer token
-  final Token consumer;
-  /// The (optional) user token
-  final Token user;
-  
-  /// Returns a token pair with a consumer token and optionally a user token
-  TokenPair(this.consumer, [this.user]);
-}
-
 /** Invoked by `isAuthorized` in order to look up the tokens for a request
  * 
- * If the `oauth_token` authorization header parameter was missing, the empty 
+ * If the `oauth_token` authorization header parameter was missing, null 
  * string will be passed as `userKey`. In this case, it is expected that 
- * `TokenPair.user` will be `null` in the returned `TokenPair`.  
+ * the user credentials will be absent from the returned Tokens object  
  */
-typedef Future<TokenPair> TokenFinder(String consumerKey, String userKey);
+typedef Future<Tokens> TokenFinder(
+    String signatureMethod, 
+    String consumerKey, 
+    String userKey);
 
 /** Invoked by `isAuthorized` in order to validate the non-reuse of the request
  *  nonce.
  *  
- *  Per the OAuth specification, the combination of nonce, consumer key, 
+ *  Per the OAuth specification, the combination of the consumer key, 
  *  user token key and nonce must be unique per distinct timestamp.
  *  
  *  Instead of the timestamp, this library passes the point in time at which
@@ -94,7 +82,7 @@ Future<bool> isAuthorized(RequestAdapter request,
                           {Duration timestampLeeway}) {  
   Map<String, String> params;
   String signature;
-  TokenPair tokens;
+  Tokens tokens;
   String consumerKey, tokenKey;
   
   timestampLeeway = timestampLeeway != null ? 
@@ -120,14 +108,13 @@ Future<bool> isAuthorized(RequestAdapter request,
     if(params.containsKey("oauth_version"))
       _require(params["oauth_version"] == "1.0");
     
-    _require(params["oauth_signature_method"] == "HMAC-SHA1");
+    _require(params["oauth_signature_method"] == "HMAC-SHA1" ||
+        params["oauth_signature_method"] == "RSA-SHA1");
     
     consumerKey   = params["oauth_consumer_key"];
     _require(consumerKey != null);
     
     tokenKey      = params["oauth_token"];
-    if(tokenKey == null)
-      tokenKey = "";
     
     signature = params.remove("oauth_signature");
     _require(signature != null);
@@ -147,13 +134,16 @@ Future<bool> isAuthorized(RequestAdapter request,
   }).then((res) {
     _require(res);
     
-    return tokenFinder(consumerKey, tokenKey);
-  }).then((TokenPair tokens_) {
+    return tokenFinder(params["oauth_signature_method"], consumerKey, tokenKey);
+  }).then((Tokens tokens_) {
     tokens = tokens_;
+    
+    return request.body.length;
+  }).then((int length) {
+    print("Body length ${length}");
     
     List<Parameter> reqParams = new List<Parameter>.from(mapParameters(params));
     reqParams.addAll(mapParameters(request.requestedUri.queryParameters));
-    
     String mimeType = request.mimeType;
     if(mimeType != null && mimeType == "application/x-www-form-urlencoded") {
       Encoding encoding = request.encoding;
@@ -167,9 +157,7 @@ Future<bool> isAuthorized(RequestAdapter request,
     }
   }).then((List<Parameter> reqParams) {   
     List<int> sigBase = computeSignatureBase(request.method, request.requestedUri, reqParams);
-    List<int> sigKey  = computeKey(tokens.consumer, tokens.user);
-    String    sig     = computeSignature(sigKey, sigBase);
-    
-    return sig == signature;
-  }).catchError((_) => false, test: (e) => false);//e is _NotAuthorized);
+    return tokens.verify(CryptoUtils.base64StringToBytes(signature), sigBase);
+  })//.catchError((_) => false, test: (e) => e is _NotAuthorized)
+    .catchError((_) => print("Error ${_}"))  ;
 }
