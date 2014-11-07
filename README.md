@@ -4,8 +4,7 @@ The client portion is designed for use with the http
 package. The server portion is designed to work with the dart:io
 HttpServer class. 
 
-Supports only HMAC-SHA1 signatures. In practice, RSA-SHA1 signatures are rare
-and most users have switched to OAuth 2. PLAINTEXT signatures are also not 
-supported, and hopefully less common.
+Supports HMAC-SHA1 and RSA-SHA1 signatures. HMAC-SHA1 is well tested, RSA-SHA1
+is completely untested and experimental. PAINTEXT signatures are unsupported.
 
 Comes with a test suite. Please report any incompatibility issues.
