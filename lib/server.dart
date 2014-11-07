@@ -138,10 +138,6 @@ Future<bool> isAuthorized(RequestAdapter request,
   }).then((Tokens tokens_) {
     tokens = tokens_;
     
-    return request.body.length;
-  }).then((int length) {
-    print("Body length ${length}");
-    
     List<Parameter> reqParams = new List<Parameter>.from(mapParameters(params));
     reqParams.addAll(mapParameters(request.requestedUri.queryParameters));
     String mimeType = request.mimeType;
@@ -158,6 +154,5 @@ Future<bool> isAuthorized(RequestAdapter request,
   }).then((List<Parameter> reqParams) {   
     List<int> sigBase = computeSignatureBase(request.method, request.requestedUri, reqParams);
     return tokens.verify(CryptoUtils.base64StringToBytes(signature), sigBase);
-  })//.catchError((_) => false, test: (e) => e is _NotAuthorized)
-    .catchError((_) => print("Error ${_}"))  ;
+  }).catchError((_) => false, test: (e) => e is _NotAuthorized);
 }

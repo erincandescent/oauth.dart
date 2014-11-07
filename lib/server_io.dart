@@ -31,5 +31,11 @@ class HttpRequestAdapter implements RequestAdapter {
   
   Uri get requestedUri => _request.requestedUri;
   
-  Stream<List<int>> get body => _request.asBroadcastStream();
+  Stream<List<int>> body_ = null;
+  Stream<List<int>> get body {
+    if (body_ == null) {
+      body_ = _request.asBroadcastStream();
+    }
+    return body_;
+  }
 }

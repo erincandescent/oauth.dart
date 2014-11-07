@@ -38,10 +38,7 @@ runAllTests(String authority) {
     test("Simple POST", () {
       var done = expectAsync((_) {});
       
-      goodClient.post(new Uri.http(authority, "/test/path"), body: "Hello, World!").catchError((err) {
-        print("Error ${err}");
-        throw err;
-      }).then((response) {
+      goodClient.post(new Uri.http(authority, "/test/path"), body: "Hello, World!").then((response) {
         expect(response.statusCode, HttpStatus.OK);      
       }).then(done);
     });
