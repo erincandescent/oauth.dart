@@ -8,3 +8,5 @@ Supports HMAC-SHA1 and RSA-SHA1 signatures. HMAC-SHA1 is well tested, RSA-SHA1
 is completely untested and experimental. PAINTEXT signatures are unsupported.
 
 Comes with a test suite. Please report any incompatibility issues.
+
+The client cannot run on the browser, yet. 
