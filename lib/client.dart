@@ -33,7 +33,8 @@ Map<String, String> generateParameters(
   requestParams.addAll(mapParameters(request.url.queryParameters));
   requestParams.addAll(mapParameters(params));
   
-  if(request.contentLength != 0
+  if(request.contentLength != null
+      && request.contentLength != 0
       && ContentType.parse(request.headers["Content-Type"]).mimeType == "application/x-www-form-urlencoded") {
     requestParams.addAll(mapParameters(request.bodyFields));
   } 
