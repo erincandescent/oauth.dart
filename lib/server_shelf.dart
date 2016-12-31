@@ -49,14 +49,7 @@ class ShelfRequestAdapter implements RequestAdapter {
   /// Must be called after the isAuthorized call has completed.
   Request getRequest() {
     if(didReadBody) {
-      return new Request(
-          _request.method, _request.requestedUri, 
-          body:            _body, 
-          context:         _request.context,
-          headers:         _request.headers, 
-          protocolVersion: _request.protocolVersion, 
-          scriptName:      _request.scriptName, 
-          url:             _request.url);
+      return _request.change(body: _body);
     } else {
       return _request;
     }

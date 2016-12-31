@@ -8,6 +8,8 @@ import 'package:cipher/random/secure_random_base.dart';
 import 'package:bignum/bignum.dart';
 import 'core.dart';
 
+const Base64Codec _base64 = const Base64Codec.urlSafe();
+
 /// Bundles together the public and secret portions of an OAuth token pair.
 abstract class Tokens {
   /// The token (public) ID
@@ -87,9 +89,8 @@ class HmacSha1Tokens extends Tokens {
   
   List<int> sign(List<int> value) {
     var secret = _computeKey();    
-    var mac = new crypto.HMAC(new crypto.SHA1(), secret);
-    mac.add(value);
-    return mac.close();
+    var mac = new crypto.Hmac(crypto.sha1, secret);
+    return mac.convert(value);
   }
   
   bool verify(List<int> signature, List<int> value) {
@@ -107,7 +108,7 @@ class HmacSha1Tokens extends Tokens {
 }
 
 BigInteger _b64bigint(String str) {
-  return new BigInteger(crypto.CryptoUtils.base64StringToBytes(str));
+  return new BigInteger(_base64.decode(str));
 }
 
 bool _checkContains(Map map, List params, String error, bool need) {

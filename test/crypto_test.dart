@@ -1,6 +1,6 @@
 import 'package:oauth/client.dart' as oauth;
 import 'package:http/http.dart' as http;
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 void main() {
   test("GET secret", () {

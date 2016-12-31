@@ -2,7 +2,6 @@
 library oauth.server;
 import 'dart:async';
 import 'dart:convert';
-import 'package:crypto/crypto.dart';
 import 'package:oauth/src/token.dart';
 import 'package:oauth/src/core.dart';
 import 'package:oauth/src/utils.dart';
@@ -153,6 +152,6 @@ Future<bool> isAuthorized(RequestAdapter request,
     }
   }).then((List<Parameter> reqParams) {   
     List<int> sigBase = computeSignatureBase(request.method, request.requestedUri, reqParams);
-    return tokens.verify(CryptoUtils.base64StringToBytes(signature), sigBase);
+    return tokens.verify(const Base64Codec.urlSafe().decode(signature), sigBase);
   }).catchError((_) => false, test: (e) => e is _NotAuthorized);
 }

@@ -3,7 +3,7 @@ library oauth.test.common;
 import 'dart:io';
 import 'dart:async';
 import 'package:oauth/oauth.dart' as oauth;
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 simpleNonceQuery(String consumerToken, String userToken, 
     String nonce, DateTime expiry) {
