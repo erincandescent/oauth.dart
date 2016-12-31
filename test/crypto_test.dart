@@ -14,6 +14,6 @@ void main() {
     var req = new http.Request("GET", Uri.parse("http://example.com/?a=1&b=2"));
     var params = oauth.generateParameters(req, tokens, nonce, 1398030869);
     
-    expect(params['oauth_signature'] == "SUmV0pnBNRvm57z69++0qAlg5Qk=", true);
+    expect(params['oauth_signature'], equals("SUmV0pnBNRvm57z69++0qAlg5Qk="));
   });
 }

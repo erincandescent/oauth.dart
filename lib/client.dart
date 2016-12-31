@@ -10,7 +10,7 @@ import 'package:oauth/src/token.dart';
 import 'package:http/http.dart' as http;
 export 'package:oauth/src/token.dart' show Tokens;
 
-const Base64Codec _base64 = const Base64Codec.urlSafe();
+const Base64Codec _base64 = const Base64Codec();
 
 /** Generate the parameters to be included in the `Authorization:` header of a
  *  request. Generally you should prefer use of [signRequest] or [Client] 
