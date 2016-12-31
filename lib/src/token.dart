@@ -90,7 +90,7 @@ class HmacSha1Tokens extends Tokens {
   List<int> sign(List<int> value) {
     var secret = _computeKey();    
     var mac = new crypto.Hmac(crypto.sha1, secret);
-    return mac.convert(value);
+    return mac.convert(value).bytes;
   }
   
   bool verify(List<int> signature, List<int> value) {
