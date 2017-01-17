@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 import 'package:oauth/oauth.dart' as oauth;
 import 'package:oauth/server_io.dart';
 import '_server_test.dart';

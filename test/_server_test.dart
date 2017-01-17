@@ -3,7 +3,7 @@ library oauth.test.common;
 import 'dart:io';
 import 'dart:async';
 import 'package:oauth/oauth.dart' as oauth;
-import 'package:unittest/unittest.dart';
+import 'package:test/test.dart';
 
 simpleNonceQuery(String consumerToken, String userToken, 
     String nonce, DateTime expiry) {
@@ -27,30 +27,21 @@ simpleTokenFinder(String type, String consumer, String user) {
 
 runAllTests(String authority) {
   standardTests(oauth.Client goodClient) => () {
-    test("Simple GET", () {
-      var done = expectAsync((_) {});    
-  
-      goodClient.get(new Uri.http(authority, "/test/path", {"foo":"bar"})).then((response) {
-        expect(response.statusCode, HttpStatus.OK);
-      }).then(done);
+    test("Simple GET", () async {
+      var response = await goodClient.get(new Uri.http(authority, "/test/path", {"foo":"bar"}));
+      expect(response.statusCode, HttpStatus.OK);
     });
     
-    test("Simple POST", () {
-      var done = expectAsync((_) {});
-      
-      goodClient.post(new Uri.http(authority, "/test/path"), body: "Hello, World!").then((response) {
-        expect(response.statusCode, HttpStatus.OK);      
-      }).then(done);
+    test("Simple POST", () async {
+      var response = await goodClient.post(new Uri.http(authority, "/test/path"), body: "Hello, World!");
+      expect(response.statusCode, HttpStatus.OK);
     });
     
-    test("Form Data POST", () {
-      var done = expectAsync((_) {});
-      
-      goodClient.post(new Uri.http(authority, "/test/path", {"c":"4"}), 
+    test("Form Data POST", () async {
+      var response = await goodClient.post(new Uri.http(authority, "/test/path", {"c":"4"}),
           body: "a=1&b=2&c=3",
-          headers: {"Content-Type": "application/x-www-form-urlencoded"}).then((response) {
-        expect(response.statusCode, HttpStatus.OK);      
-      }).then(done);    
+          headers: {"Content-Type": "application/x-www-form-urlencoded"});
+      expect(response.statusCode, HttpStatus.OK);
     });
   };
   
@@ -60,12 +51,9 @@ runAllTests(String authority) {
   group("With user credentials",
       standardTests(new oauth.Client(new oauth.Tokens(consumerId: "Hello", consumerKey: "HELLO", userId: "World", userKey: "WORLD"))));
   
-  test("Bad GET", () {
-    var done = expectAsync((_) {});
-    
+  test("Bad GET", () async {
     var client = new oauth.Client(new oauth.Tokens(consumerId: "bad", consumerKey: "very very bad"));
-    client.get(new Uri.http(authority,  "/")).then((response) {
-      expect(response.statusCode, HttpStatus.FORBIDDEN);
-    }).then(done);
+    var response = await client.get(new Uri.http(authority,  "/"));
+    expect(response.statusCode, HttpStatus.FORBIDDEN);
   });
 }
