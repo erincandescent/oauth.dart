@@ -2,6 +2,7 @@
  */
 library oauth.client;
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
 import 'package:oauth/src/utils.dart';
@@ -20,7 +21,7 @@ Map<String, String> generateParameters(
     Tokens tokens, 
     String nonce,
     int timestamp) {
-  Map<String, String> params = new Map<String, String>();
+  Map<String, String> params = new SplayTreeMap<String, String>();
   params["oauth_consumer_key"] = tokens.consumerId;
   if(tokens.userId != null) {
     params["oauth_token"] = tokens.userId;
