@@ -8,7 +8,7 @@ import '_server_test.dart';
 main() {
   HttpServer server;
   setUp(() {
-    return HttpServer.bind(InternetAddress.LOOPBACK_IP_V6, 8989).then((server_) {
+    return HttpServer.bind(InternetAddress.LOOPBACK_IP_V6, 8989, shared: true).then((server_) {
       server = server_;
       server.listen((HttpRequest request) {
         var reqAdapter = new HttpRequestAdapter(request);

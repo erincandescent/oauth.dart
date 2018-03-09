@@ -9,8 +9,9 @@ import '_server_test.dart';
 
 main() {
   HttpServer server;
-  setUp(() {
-    return shelf_io.serve((shelf.Request req) {
+
+  setUp(() async {
+    handler(shelf.Request req) {
       var reqAdapter = new ShelfRequestAdapter(req);
       return oauth.isAuthorized(reqAdapter, simpleTokenFinder, simpleNonceQuery)
           .then((bool authorized) {
@@ -20,7 +21,10 @@ main() {
           return new shelf.Response.forbidden("Forbidden");
         }
       });
-    }, InternetAddress.LOOPBACK_IP_V6, 8989).then((server_) {
+    }
+
+    return HttpServer.bind(InternetAddress.LOOPBACK_IP_V6, 8989, shared: true).then((server_) {
+      server_.listen((req) => shelf_io.handleRequest(req, handler));
       server = server_;
     });
   });
