@@ -239,7 +239,7 @@ class RsaSha1Tokens extends Tokens {
 
     var params = new ParametersWithRandom(new PrivateKeyParameter(privateKey), _SecureRandom.INSTANCE);
     signer.init(true,  params);
-    return signer.generateSignature(body).bytes;
+    return (signer.generateSignature(body) as dynamic).bytes;
   }
 
   bool verify(List<int> signature, List<int> body) {

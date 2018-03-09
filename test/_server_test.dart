@@ -5,12 +5,12 @@ import 'dart:async';
 import 'package:oauth/oauth.dart' as oauth;
 import 'package:test/test.dart';
 
-simpleNonceQuery(String consumerToken, String userToken, 
+Future<bool> simpleNonceQuery(String consumerToken, String userToken,
     String nonce, DateTime expiry) {
   return new Future.value(true); 
 }
 
-simpleTokenFinder(String type, String consumer, String user) {
+Future<oauth.Tokens> simpleTokenFinder(String type, String consumer, String user) async {
   assert(type == "HMAC-SHA1");
   
   var consumerSecret = consumer.toUpperCase();

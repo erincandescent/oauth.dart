@@ -134,7 +134,7 @@ Future<bool> isAuthorized(RequestAdapter request,
     _require(res);
     
     return tokenFinder(params["oauth_signature_method"], consumerKey, tokenKey);
-  }).then((Tokens tokens_) {
+  }).then<List<Parameter>>((Tokens tokens_) {
     tokens = tokens_;
     
     List<Parameter> reqParams = new List<Parameter>.from(mapParameters(params));
