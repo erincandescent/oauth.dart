@@ -38,7 +38,7 @@ Map<String, String> generateParameters(
   
   if(request.contentLength != null
       && request.contentLength != 0
-      && ContentType.parse(request.headers["Content-Type"]).mimeType == "application/x-www-form-urlencoded") {
+      && ContentType.parse(request.headers["content-Type"]).mimeType == "application/x-www-form-urlencoded") {
     requestParams.addAll(mapParameters(request.bodyFields));
   } 
   
