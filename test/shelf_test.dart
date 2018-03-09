@@ -5,7 +5,7 @@ import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:test/test.dart';
 import 'package:oauth/oauth.dart' as oauth;
 import 'package:oauth/server_shelf.dart';
-import '_server_test.dart';
+import '_server_test_utils.dart';
 
 main() {
   HttpServer server;
