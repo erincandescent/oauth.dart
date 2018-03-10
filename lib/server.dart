@@ -1,6 +1,7 @@
 /** Server support for OAuth 1.0a with the dart:io [HttpServer] */
 library oauth.server;
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 import 'package:oauth/src/token.dart';
 import 'package:oauth/src/core.dart';
@@ -94,7 +95,7 @@ Future<bool> isAuthorized(RequestAdapter request,
     
     authHeader = authHeader.substring(5);
     
-    params = new Map<String, String>();
+    params = new SplayTreeMap<String, String>();
     for(var e in authHeader.split(",")) {
       Match res = _paramRegex.matchAsPrefix(e);
       _require(res != null);
@@ -136,19 +137,18 @@ Future<bool> isAuthorized(RequestAdapter request,
     return tokenFinder(params["oauth_signature_method"], consumerKey, tokenKey);
   }).then<List<Parameter>>((Tokens tokens_) {
     tokens = tokens_;
-    
-    List<Parameter> reqParams = new List<Parameter>.from(mapParameters(params));
-    reqParams.addAll(mapParameters(request.requestedUri.queryParameters));
+
+    params.addAll(request.requestedUri.queryParameters);
     String mimeType = request.mimeType;
     if(mimeType != null && mimeType == "application/x-www-form-urlencoded") {
       Encoding encoding = request.encoding;
       if(encoding == null) encoding = UTF8;
       return encoding.decodeStream(request.body).then((String data) {
-        reqParams.addAll(mapParameters(Uri.splitQueryString(data, encoding: encoding)));
-        return reqParams;
+        params.addAll(Uri.splitQueryString(data, encoding: encoding));
+        return new List<Parameter>.from(mapParameters(params));
       });
     } else {
-      return reqParams;
+      return new List<Parameter>.from(mapParameters(params));
     }
   }).then((List<Parameter> reqParams) {   
     List<int> sigBase = computeSignatureBase(request.method, request.requestedUri, reqParams);
