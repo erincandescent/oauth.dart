@@ -33,18 +33,18 @@ Map<String, String> generateParameters(
   params["oauth_nonce"] = nonce;
   params["oauth_timestamp"] = timestamp.toString();
 
-  List<Parameter> requestParams = new List<Parameter>();
-  requestParams.addAll(mapParameters(request.url.queryParameters));
-  requestParams.addAll(mapParameters(params));
+  var requestParams = new SplayTreeMap<String, String>();
+  requestParams.addAll(request.url.queryParameters);
+  requestParams.addAll(params);
 
   var mediaType = request.headers.containsKey('content-type') ? new MediaType.parse(request.headers['content-type']) : null;
 
   if(mediaType?.type == 'application'
       && mediaType?.subtype == 'x-www-form-urlencoded') {
-    requestParams.addAll(mapParameters(request.bodyFields));
+    requestParams.addAll(request.bodyFields);
   }
 
-  var sigBase = computeSignatureBase(request.method, request.url, requestParams);
+  var sigBase = computeSignatureBase(request.method, request.url, mapParameters(requestParams).toList());
   params["oauth_signature"] = _base64.encode(tokens.sign(sigBase));
 
   return params;
